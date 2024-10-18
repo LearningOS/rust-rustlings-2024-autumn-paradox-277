@@ -16,18 +16,33 @@
 //
 // Execute `rustlings hint quiz3` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
 
+// 定义一个枚举类型来表示成绩
+#[derive(Debug)]
+pub enum Grade {
+    Numeric(f32), // 数字成绩
+    Alphabetic(String), // 字母成绩
+}
+
+// 修改 ReportCard 结构体
 pub struct ReportCard {
-    pub grade: f32,
+    pub grade: Grade,
     pub student_name: String,
     pub student_age: u8,
 }
 
 impl ReportCard {
     pub fn print(&self) -> String {
-        format!("{} ({}) - achieved a grade of {}",
-            &self.student_name, &self.student_age, &self.grade)
+        match &self.grade {
+            Grade::Numeric(value) => format!(
+                "{} ({}) - achieved a grade of {}",
+                &self.student_name, &self.student_age, value
+            ),
+            Grade::Alphabetic(letter) => format!(
+                "{} ({}) - achieved a grade of {}",
+                &self.student_name, &self.student_age, letter
+            ),
+        }
     }
 }
 
@@ -38,7 +53,7 @@ mod tests {
     #[test]
     fn generate_numeric_report_card() {
         let report_card = ReportCard {
-            grade: 2.1,
+            grade: Grade::Numeric(2.1),
             student_name: "Tom Wriggle".to_string(),
             student_age: 12,
         };
@@ -50,9 +65,9 @@ mod tests {
 
     #[test]
     fn generate_alphabetic_report_card() {
-        // TODO: Make sure to change the grade here after you finish the exercise.
+        // 这里改变成绩为字母成绩
         let report_card = ReportCard {
-            grade: 2.1,
+            grade: Grade::Alphabetic("A+".to_string()), // 使用字母成绩
             student_name: "Gary Plotter".to_string(),
             student_age: 11,
         };
