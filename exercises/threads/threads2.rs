@@ -7,9 +7,9 @@
 // Execute `rustlings hint threads2` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
 
-use std::sync::Arc;
+
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -18,22 +18,28 @@ struct JobStatus {
 }
 
 fn main() {
-    let status = Arc::new(JobStatus { jobs_completed: 0 });
+    // 创建一个 Arc 包裹 Mutex，保护 JobStatus
+    let status = Arc::new(Mutex::new(JobStatus { jobs_completed: 0 }));
     let mut handles = vec![];
+
     for _ in 0..10 {
+        // 克隆 Arc，以便在多个线程之间共享
         let status_shared = Arc::clone(&status);
         let handle = thread::spawn(move || {
             thread::sleep(Duration::from_millis(250));
-            // TODO: You must take an action before you update a shared value
-            status_shared.jobs_completed += 1;
+            // 锁定 Mutex，安全地更新 jobs_completed
+            let mut status = status_shared.lock().unwrap();
+            status.jobs_completed += 1; // 更新工作状态
         });
         handles.push(handle);
     }
+
+    // 等待所有线程完成
     for handle in handles {
         handle.join().unwrap();
-        // TODO: Print the value of the JobStatus.jobs_completed. Did you notice
-        // anything interesting in the output? Do you have to 'join' on all the
-        // handles?
-        println!("jobs completed {}", ???);
     }
+
+    // 在所有线程完成后打印 jobs_completed 的值
+    let status = status.lock().unwrap();
+    println!("jobs completed {}", status.jobs_completed);
 }

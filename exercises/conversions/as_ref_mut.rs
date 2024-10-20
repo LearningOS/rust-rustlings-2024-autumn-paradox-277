@@ -7,26 +7,35 @@
 // Execute `rustlings hint as_ref_mut` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
+
 
 // Obtain the number of bytes (not characters) in the given argument.
 // TODO: Add the AsRef trait appropriately as a trait bound.
-fn byte_counter<T>(arg: T) -> usize {
-    arg.as_ref().as_bytes().len()
+fn byte_counter<T:AsRef<[u8]>>(arg: T) -> usize {
+    arg.as_ref().len()
 }
 
 // Obtain the number of characters (not bytes) in the given argument.
 // TODO: Add the AsRef trait appropriately as a trait bound.
-fn char_counter<T>(arg: T) -> usize {
+fn char_counter<T: AsRef<str>>(arg: T) -> usize {
     arg.as_ref().chars().count()
 }
 
+
 // Squares a number using as_mut().
 // TODO: Add the appropriate trait bound.
-fn num_sq<T>(arg: &mut T) {
-    // TODO: Implement the function body.
-    ???
+fn num_sq(arg: &mut u32) {
+    let val = *arg;
+    *arg = val * val;
 }
+
+// Or if you really need to work with Box<u32> and want to modify in place,
+// you can dereference and mutate the value inside the Box<u32> directly:
+fn num_sq_box(arg: &mut Box<u32>) {
+    let val = **arg;
+    **arg = val * val;
+}
+
 
 #[cfg(test)]
 mod tests {

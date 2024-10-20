@@ -3,11 +3,30 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+
+fn sort<T: PartialOrd>(array: &mut [T]) {
+    let n = array.len();
+    for i in 0..n {
+        // Track if a swap occurred
+        let mut swapped = false;
+
+        // Last i elements are already in place
+        for j in 0..n - 1 - i {
+            if array[j] > array[j + 1] {
+                // Swap the elements
+                array.swap(j, j + 1);
+                swapped = true;
+            }
+        }
+
+        // If no swaps occurred, the array is sorted
+        if !swapped {
+            break;
+        }
+    }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

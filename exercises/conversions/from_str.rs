@@ -9,6 +9,8 @@
 // Execute `rustlings hint from_str` or use the `hint` watch subcommand for a
 // hint.
 
+use std::arch::x86_64::_SIDD_POSITIVE_POLARITY;
+use std::io::Split;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -31,8 +33,6 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
-
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
 // 2. Split the given string on the commas present in it
@@ -52,7 +52,34 @@ enum ParsePersonError {
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
-    }
+        // 步骤 1: 检查输入字符串是否为空
+        if s.is_empty() {
+            return Err(ParsePersonError::Empty);
+        }
+
+        // 步骤 2: 将字符串按逗号分割
+        let parts: Vec<&str> = s.split(',').collect();
+
+        // 步骤 3: 确保分割后有两个元素
+        if parts.len() != 2 {
+            return Err(ParsePersonError::BadLen);
+        }
+
+        // 步骤 4: 提取并修整姓名
+        let name = parts[0].trim().to_string();
+        
+        // 步骤 6: 检查姓名是否为空
+        if name.is_empty() {
+            return Err(ParsePersonError::NoName);
+        }
+
+        // 步骤 5: 尝试解析年龄
+        let age = parts[1].trim().parse::<usize>()
+            .map_err(ParsePersonError::ParseInt)?;
+
+        // 返回一个 Person 实例
+        Ok(Person { name, age })
+  }
 }
 
 fn main() {

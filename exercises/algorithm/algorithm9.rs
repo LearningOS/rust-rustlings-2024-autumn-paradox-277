@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +23,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![T::default()], // 开始时堆有一个默认元素
             comparator,
         }
     }
@@ -37,15 +37,17 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.count += 1;
+        // 如果当前元素数量超过了容器大小，扩展容器
+        if self.count >= self.items.len() {
+            self.items.push(T::default());
+        }
+        self.items[self.count] = value;
+        self.heapify_up(self.count);
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
         idx / 2
-    }
-
-    fn children_present(&self, idx: usize) -> bool {
-        self.left_child_idx(idx) <= self.count
     }
 
     fn left_child_idx(&self, idx: usize) -> usize {
@@ -53,12 +55,47 @@ where
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
-        self.left_child_idx(idx) + 1
+        idx * 2 + 1
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        if self.right_child_idx(idx) > self.count {
+            self.left_child_idx(idx) // 只有左子节点
+        } else {
+            // 比较左右子节点，返回较小的一个
+            if (self.comparator)(&self.items[self.left_child_idx(idx)], &self.items[self.right_child_idx(idx)]) {
+                self.left_child_idx(idx)
+            } else {
+                self.right_child_idx(idx)
+            }
+        }
+    }
+
+    fn heapify_up(&mut self, idx: usize) {
+        let mut current_idx = idx;
+        while current_idx > 1 {
+            let parent_idx = self.parent_idx(current_idx);
+            // 如果当前节点小于父节点，则交换它们
+            if (self.comparator)(&self.items[current_idx], &self.items[parent_idx]) {
+                self.items.swap(current_idx, parent_idx);
+                current_idx = parent_idx; // 更新索引继续向上移动
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn heapify_down(&mut self, idx: usize) {
+        let mut current_idx = idx;
+        while self.left_child_idx(current_idx) <= self.count {
+            let smallest_child = self.smallest_child_idx(current_idx);
+            if (self.comparator)(&self.items[smallest_child], &self.items[current_idx]) {
+                self.items.swap(current_idx, smallest_child);
+                current_idx = smallest_child; // 更新索引继续向下移动
+            } else {
+                break;
+            }
+        }
     }
 }
 
@@ -79,13 +116,20 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Ord + Clone, // 添加 Clone 约束
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        let top = self.items[1].clone(); // 获取堆顶元素
+        self.items[1] = self.items[self.count].clone(); // 将最后一个元素移到堆顶
+        self.count -= 1; // 减少元素计数
+        self.heapify_down(1); // 维护堆的性质
+        Some(top)
     }
 }
 
@@ -116,6 +160,7 @@ impl MaxHeap {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_empty_heap() {
         let mut heap = MaxHeap::new::<i32>();
